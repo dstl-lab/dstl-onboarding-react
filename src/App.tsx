@@ -100,7 +100,7 @@ export default function Game() {
       );
       const row = Math.floor(lastMove / 3) + 1;
       const col = (lastMove % 3) + 1;
-      description = 'Go to move #' + move + ` (${col}, ${row})`;
+      description = 'Go to move #' + move + ` (${row}, ${col})`;
     } else {
       description = 'Go to game start';
     }
