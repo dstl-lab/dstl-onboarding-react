@@ -3,12 +3,17 @@ import { useState } from "react";
 function Square({
   value,
   onSquareClick,
+  highlight,
 }: {
   value: string | null;
   onSquareClick: () => void;
+  highlight?: boolean;
 }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button
+      className={`square${highlight ? " winning" : ""}`}
+      onClick={onSquareClick}
+    >
       {value}
     </button>
   );
@@ -23,7 +28,9 @@ function Board({
   onPlay: (squares: (string | null)[]) => void;
   squares: (string | null)[];
 }) {
-  const winner = calculateWinner(squares);
+  const result = calculateWinner(squares);
+  const winner = result ? result.winner : null;
+  const winningLine = result ? result.line : null;
   let status;
   if (winner) {
     status = "Winner: " + winner;
@@ -34,7 +41,7 @@ function Board({
   }
 
   function handleClick(i: number) {
-    if (calculateWinner(squares) || squares[i]) {
+    if (winner || squares[i]) {
       return;
     }
     const nextSquares = squares.slice();
@@ -50,19 +57,55 @@ function Board({
     <>
       <div className="status">{status}</div>
       <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+        <Square
+          value={squares[0]}
+          onSquareClick={() => handleClick(0)}
+          highlight={!!(winningLine && winningLine.includes(0))}
+        />
+        <Square
+          value={squares[1]}
+          onSquareClick={() => handleClick(1)}
+          highlight={!!(winningLine && winningLine.includes(1))}
+        />
+        <Square
+          value={squares[2]}
+          onSquareClick={() => handleClick(2)}
+          highlight={!!(winningLine && winningLine.includes(2))}
+        />
       </div>
       <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+        <Square
+          value={squares[3]}
+          onSquareClick={() => handleClick(3)}
+          highlight={!!(winningLine && winningLine.includes(3))}
+        />
+        <Square
+          value={squares[4]}
+          onSquareClick={() => handleClick(4)}
+          highlight={!!(winningLine && winningLine.includes(4))}
+        />
+        <Square
+          value={squares[5]}
+          onSquareClick={() => handleClick(5)}
+          highlight={!!(winningLine && winningLine.includes(5))}
+        />
       </div>
       <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+        <Square
+          value={squares[6]}
+          onSquareClick={() => handleClick(6)}
+          highlight={!!(winningLine && winningLine.includes(6))}
+        />
+        <Square
+          value={squares[7]}
+          onSquareClick={() => handleClick(7)}
+          highlight={!!(winningLine && winningLine.includes(7))}
+        />
+        <Square
+          value={squares[8]}
+          onSquareClick={() => handleClick(8)}
+          highlight={!!(winningLine && winningLine.includes(8))}
+        />
       </div>
     </>
   );
@@ -87,7 +130,16 @@ export default function Game() {
   const moves = history.map((squares, move) => {
     let description;
     if (move > 0) {
-      description = "Go to move #" + move;
+      // compute the location (row, col) by comparing with previous board
+      const prevSquares = history[move - 1];
+      const idx = squares.findIndex((sq, i) => sq !== prevSquares[i]);
+      if (idx >= 0) {
+        const row = Math.floor(idx / 3) + 1;
+        const col = (idx % 3) + 1;
+        description = `Go to move #${move} (${row}, ${col})`;
+      } else {
+        description = `Go to move #${move}`;
+      }
     } else {
       description = "Go to game start";
     }
@@ -110,7 +162,9 @@ export default function Game() {
   );
 }
 
-function calculateWinner(squares: (string | null)[]) {
+function calculateWinner(
+  squares: (string | null)[]
+): { winner: string; line: number[] } | null {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -124,7 +178,7 @@ function calculateWinner(squares: (string | null)[]) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return { winner: squares[a] as string, line: lines[i] };
     }
   }
   return null;

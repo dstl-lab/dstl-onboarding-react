@@ -71,9 +71,12 @@ body {
   width: 34px;
 }
 
+.square.winning {
+  background: gold;
+}
 .board-row:after {
   clear: both;
-  content: '';
+  content: "";
   display: table;
 }
 
